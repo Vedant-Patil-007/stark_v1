@@ -3178,22 +3178,43 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 name = "stark"
 version = "0.1.0"
 dependencies = [
+ "rusqlite",
  "serde",
  "serde_json",
+ "stark-commands",
+ "stark-domain",
+ "stark-storage",
  "tauri",
  "tauri-build",
  "tauri-plugin-opener",
 ]
 
 [[package]]
+name = "stark-commands"
+version = "0.1.0"
+dependencies = [
+ "rusqlite",
+ "serde",
+ "stark-domain",
+ "stark-storage",
+ "thiserror 2.0.19",
+]
+
+[[package]]
 name = "stark-domain"
 version = "0.1.0"
+dependencies = [
+ "serde",
+ "time",
+ "uuid",
+]
 
 [[package]]
 name = "stark-storage"
 version = "0.1.0"
 dependencies = [
  "rusqlite",
+ "serde",
  "stark-domain",
  "thiserror 2.0.19",
  "time",
