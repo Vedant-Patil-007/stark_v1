@@ -1,0 +1,7 @@
+[package]
+name = "stark-storage"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+stark-domain = { path = "../domain" }
