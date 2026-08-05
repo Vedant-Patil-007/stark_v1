@@ -34,6 +34,10 @@ pub fn run() {
             commands::get_goal,
             commands::goal_criteria,
             commands::delete_goal,
+            commands::create_milestone,
+            commands::list_milestones,
+            commands::set_milestone_status,
+            commands::delete_milestone,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,0 +1,1 @@
+CREATE INDEX idx_task_milestone ON task(milestone_id, status);

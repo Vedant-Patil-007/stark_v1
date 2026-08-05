@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import type { Goal, NewGoal, Milestone, NewMilestone, Status } from "./types";
 
 export const api = {

@@ -35,3 +35,41 @@ pub fn delete_goal(state: State<'_, AppState>, id: String) -> CmdResult<()> {
     let conn = state.db.lock().unwrap();
     goal_cmd::delete_goal(&conn, &GoalId::from(id)).map_err(Into::into)
 }
+
+use stark_commands::milestone as milestone_cmd;
+use stark_domain::{Milestone, MilestoneId, NewMilestone, Status};
+
+#[tauri::command]
+pub fn create_milestone(
+    state: State<'_, AppState>,
+    input: NewMilestone,
+) -> CmdResult<Milestone> {
+    let conn = state.db.lock().unwrap();
+    milestone_cmd::create_milestone(&conn, input).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn list_milestones(
+    state: State<'_, AppState>,
+    goal_id: String,
+) -> CmdResult<Vec<Milestone>> {
+    let conn = state.db.lock().unwrap();
+    milestone_cmd::list_milestones(&conn, &GoalId::from(goal_id)).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn set_milestone_status(
+    state: State<'_, AppState>,
+    id: String,
+    status: Status,
+) -> CmdResult<()> {
+    let conn = state.db.lock().unwrap();
+    milestone_cmd::set_milestone_status(&conn, &MilestoneId::from(id), status)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn delete_milestone(state: State<'_, AppState>, id: String) -> CmdResult<()> {
+    let conn = state.db.lock().unwrap();
+    milestone_cmd::delete_milestone(&conn, &MilestoneId::from(id)).map_err(Into::into)
+}

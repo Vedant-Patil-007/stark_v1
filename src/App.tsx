@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import type { Goal, Priority } from "./types";
 import "./styles.css";
+import GoalDetail from "./GoalDetail";
 
 export default function App() {
+  const [selected, setSelected] = useState<Goal | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [title, setTitle] = useState("");
   const [targetDate, setTargetDate] = useState("");
@@ -53,8 +55,15 @@ export default function App() {
       setError(e?.message ?? String(e));
     }
   }
-
+if (selected) {
+    return (
+      <main style={{ padding: 24, fontFamily: "system-ui", maxWidth: 720 }}>
+        <GoalDetail goal={selected} onBack={() => setSelected(null)} />
+      </main>
+    );
+  }
   return (
+
     <main style={{ padding: 24, fontFamily: "system-ui", maxWidth: 720 }}>
       <h1>Stark</h1>
 
@@ -110,7 +119,12 @@ export default function App() {
               }}
             >
               <div>
-                <strong>{g.title}</strong>
+                <strong
+                  onClick={() => setSelected(g)}
+                  style={{ cursor: "pointer", textDecoration: "underline" }}
+                >
+                  {g.title}
+                </strong>
                 <div style={{ fontSize: 13, opacity: 0.7 }}>
                   {g.priority} · {g.status}
                   {g.target_date ? ` · due ${g.target_date}` : ""}

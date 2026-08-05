@@ -10,11 +10,18 @@ struct Migration {
 }
 
 /// Ordered list of all migrations. Append only.
-const MIGRATIONS: &[Migration] = &[Migration {
-    version: 1,
-    name: "initial",
-    sql: include_str!("../migrations/001_initial.sql"),
-}];
+const MIGRATIONS: &[Migration] = &[
+    Migration {
+        version: 1,
+        name: "initial",
+        sql: include_str!("../migrations/001_initial.sql"),
+    },
+    Migration {
+        version: 2,
+        name: "milestone_task_links",
+        sql: include_str!("../migrations/002_milestone_task_links.sql"),
+    },
+];
 
 /// Highest schema version this build understands.
 pub fn target_version() -> i32 {
