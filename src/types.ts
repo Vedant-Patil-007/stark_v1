@@ -29,3 +29,37 @@ export interface ErrorPayload {
   kind: "VALIDATION" | "NOT_FOUND" | "STORAGE";
   message: string;
 }
+export interface Task {
+  id: string;
+  goal_id: string | null;
+  milestone_id: string | null;
+  title: string;
+  description: string | null;
+  due_date: string | null;
+  scheduled_date: string | null;
+  estimated_minutes: number | null;
+  priority: Priority;
+  status: Status;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  deleted_at: string | null;
+}
+
+export interface NewTask {
+  goal_id: string | null;
+  milestone_id: string | null;
+  title: string;
+  description: string | null;
+  due_date: string | null;
+  scheduled_date: string | null;
+  estimated_minutes: number | null;
+  priority: Priority;
+}
+
+export interface TaskFilter {
+  goal_id?: string | null;
+  milestone_id?: string | null;
+  scheduled_date?: string | null;
+  include_completed: boolean;
+}

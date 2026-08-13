@@ -5,6 +5,6 @@ pub mod goal_repo;
 pub mod migrations;
 pub mod paths;
 pub mod time_util;
-
+pub mod task_repo;
 pub mod milestone_repo;
 pub use error::{Result, StorageError};

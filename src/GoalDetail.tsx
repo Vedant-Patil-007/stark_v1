@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
 import type { Goal, Milestone, Status } from "./types";
-
+import TaskList from "./TaskList";
 export default function GoalDetail({
   goal,
   onBack,
@@ -133,6 +133,8 @@ export default function GoalDetail({
           ))}
         </ul>
       )}
+      <h3 style={{ marginTop: 32 }}>Tasks</h3>
+      <TaskList goalId={goal.id} />
     </div>
   );
 }

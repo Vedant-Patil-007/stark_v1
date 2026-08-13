@@ -38,6 +38,11 @@ pub fn run() {
             commands::list_milestones,
             commands::set_milestone_status,
             commands::delete_milestone,
+            commands::create_task,
+            commands::list_tasks,
+            commands::set_task_status,
+            commands::reschedule_task,
+            commands::delete_task,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
