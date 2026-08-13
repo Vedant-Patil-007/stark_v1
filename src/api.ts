@@ -4,7 +4,9 @@ import type {
   Milestone, NewMilestone,
   Task, NewTask, TaskFilter,
   LogEntry, NewLogEntry,
-  Status,
+  Status,AvailabilityWindow, NewAvailabilityWindow,
+  AvailabilityException, NewAvailabilityException,
+  DayCapacity,
 } from "./types";
 
 export const api = {
@@ -34,4 +36,18 @@ export const api = {
   deleteLogEntry: (id: string) => invoke<void>("delete_log_entry", { id }),
   tasksInRange: (from: string, to: string) =>
     invoke<Task[]>("tasks_in_range", { from, to }),
+  createAvailabilityWindow: (input: NewAvailabilityWindow) =>
+    invoke<AvailabilityWindow>("create_availability_window", { input }),
+  listAvailabilityWindows: () =>
+    invoke<AvailabilityWindow[]>("list_availability_windows"),
+  deleteAvailabilityWindow: (id: string) =>
+    invoke<void>("delete_availability_window", { id }),
+  createAvailabilityException: (input: NewAvailabilityException) =>
+    invoke<AvailabilityException>("create_availability_exception", { input }),
+  listAvailabilityExceptions: (from: string, to: string) =>
+    invoke<AvailabilityException[]>("list_availability_exceptions", { from, to }),
+  deleteAvailabilityException: (id: string) =>
+    invoke<void>("delete_availability_exception", { id }),
+  capacityForDate: (date: string, weekday: number) =>
+    invoke<DayCapacity>("capacity_for_date", { date, weekday }),
 };

@@ -5,6 +5,7 @@ import "./styles.css";
 import GoalDetail from "./GoalDetail";
 import DailyLog from "./DailyLog";
 import Calendar from "./Calendar";
+import Availability from "./Availability";
 
 const shellStyle = {
   padding: 24,
@@ -21,7 +22,7 @@ export default function App() {
   const [priority, setPriority] = useState<Priority>("MEDIUM");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"goals" | "log" | "calendar">("goals");
+  const [view, setView] = useState<"goals" | "log" | "calendar" | "availability">("goals");
 
   async function refresh() {
     try {
@@ -97,12 +98,19 @@ export default function App() {
         >
           Calendar
         </button>
+        <button
+          onClick={() => setView("availability")}
+          style={{ fontWeight: view === "availability" ? "bold" : "normal" }}
+        >
+          Availability
+        </button>
       </div>
 
       {error && <p style={{ color: "#c00", marginBottom: 16 }}>{error}</p>}
 
       {view === "log" && <DailyLog goals={goals} />}
       {view === "calendar" && <Calendar />}
+      {view === "availability" && <Availability />}
 
       {view === "goals" && (
         <>

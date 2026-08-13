@@ -8,6 +8,11 @@ use stark_commands::daily_log as log_cmd;
 use stark_domain::{LogEntry, LogEntryId, NewLogEntry};
 use stark_commands::milestone as milestone_cmd;
 use stark_domain::{Milestone, MilestoneId, NewMilestone, Status};
+use stark_commands::availability as avail_cmd;
+use stark_domain::{
+    AvailabilityException, AvailabilityId, AvailabilityWindow, DayCapacity, ExceptionId,
+    NewAvailabilityException, NewAvailabilityWindow,
+};
 type CmdResult<T> = std::result::Result<T, ErrorPayload>;
 
 #[tauri::command]
@@ -146,4 +151,72 @@ pub fn tasks_in_range(
 ) -> CmdResult<Vec<Task>> {
     let conn = state.db.lock().unwrap();
     task_cmd::tasks_in_range(&conn, &from, &to).map_err(Into::into)
+}
+
+
+
+#[tauri::command]
+pub fn create_availability_window(
+    state: State<'_, AppState>,
+    input: NewAvailabilityWindow,
+) -> CmdResult<AvailabilityWindow> {
+    let conn = state.db.lock().unwrap();
+    avail_cmd::create_availability_window(&conn, input).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn list_availability_windows(
+    state: State<'_, AppState>,
+) -> CmdResult<Vec<AvailabilityWindow>> {
+    let conn = state.db.lock().unwrap();
+    avail_cmd::list_availability_windows(&conn).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn delete_availability_window(
+    state: State<'_, AppState>,
+    id: String,
+) -> CmdResult<()> {
+    let conn = state.db.lock().unwrap();
+    avail_cmd::delete_availability_window(&conn, &AvailabilityId::from(id))
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn create_availability_exception(
+    state: State<'_, AppState>,
+    input: NewAvailabilityException,
+) -> CmdResult<AvailabilityException> {
+    let conn = state.db.lock().unwrap();
+    avail_cmd::create_availability_exception(&conn, input).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn list_availability_exceptions(
+    state: State<'_, AppState>,
+    from: String,
+    to: String,
+) -> CmdResult<Vec<AvailabilityException>> {
+    let conn = state.db.lock().unwrap();
+    avail_cmd::list_availability_exceptions(&conn, &from, &to).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn delete_availability_exception(
+    state: State<'_, AppState>,
+    id: String,
+) -> CmdResult<()> {
+    let conn = state.db.lock().unwrap();
+    avail_cmd::delete_availability_exception(&conn, &ExceptionId::from(id))
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn capacity_for_date(
+    state: State<'_, AppState>,
+    date: String,
+    weekday: i64,
+) -> CmdResult<DayCapacity> {
+    let conn = state.db.lock().unwrap();
+    avail_cmd::capacity_for_date(&conn, &date, weekday).map_err(Into::into)
 }

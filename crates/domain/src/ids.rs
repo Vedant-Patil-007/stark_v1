@@ -42,3 +42,6 @@ define_id!(TaskId);
 define_id!(CriterionId);
 
 define_id!(LogEntryId);
+
+define_id!(AvailabilityId);
+define_id!(ExceptionId);

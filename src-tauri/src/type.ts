@@ -41,3 +41,48 @@ export interface NewLogEntry {
   category: string | null;
   notes: string | null;
 }
+
+export interface AvailabilityWindow {
+  id: string;
+  weekday: number;
+  start_minute: number;
+  end_minute: number;
+  label: string | null;
+  created_at: string;
+}
+
+export interface NewAvailabilityWindow {
+  weekday: number;
+  start_minute: number;
+  end_minute: number;
+  label: string | null;
+}
+
+export interface AvailabilityException {
+  id: string;
+  date: string;
+  start_minute: number;
+  end_minute: number;
+  is_available: boolean;
+  note: string | null;
+  created_at: string;
+}
+
+export interface NewAvailabilityException {
+  date: string;
+  start_minute: number;
+  end_minute: number;
+  is_available: boolean;
+  note: string | null;
+}
+
+export interface Interval {
+  start: number;
+  end: number;
+}
+
+export interface DayCapacity {
+  date: string;
+  windows: Interval[];
+  total_minutes: number;
+}
