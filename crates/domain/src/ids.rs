@@ -40,3 +40,5 @@ define_id!(GoalId);
 define_id!(MilestoneId);
 define_id!(TaskId);
 define_id!(CriterionId);
+
+define_id!(LogEntryId);

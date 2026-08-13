@@ -3,6 +3,7 @@ use crate::backup::{self, BackupReason};
 use crate::error::{Result, StorageError};
 
 /// A single forward migration. Never edit a released migration — add a new one.
+
 struct Migration {
     version: i32,
     name: &'static str,
@@ -20,6 +21,11 @@ const MIGRATIONS: &[Migration] = &[
         version: 2,
         name: "milestone_task_links",
         sql: include_str!("../migrations/002_milestone_task_links.sql"),
+    },
+    Migration {
+        version: 3,
+        name: "daily_log",
+        sql: include_str!("../migrations/003_daily_log.sql"),
     },
 ];
 
