@@ -122,6 +122,7 @@ pub fn soft_delete(conn: &Connection, id: &TaskId) -> Result<bool> {
     Ok(n > 0)
 }
 
+
 fn row_to_task(row: &rusqlite::Row<'_>) -> rusqlite::Result<Task> {
     let priority_str: String = row.get(8)?;
     let status_str: String = row.get(9)?;
@@ -142,4 +143,22 @@ fn row_to_task(row: &rusqlite::Row<'_>) -> rusqlite::Result<Task> {
         completed_at: row.get(12)?,
         deleted_at: row.get(13)?,
     })
+}
+/// Tasks whose scheduled_date OR due_date falls within [from, to].
+pub fn list_in_range(conn: &Connection, from: &str, to: &str) -> Result<Vec<Task>> {
+    let mut stmt = conn.prepare(
+        "SELECT id, goal_id, milestone_id, title, description,
+                due_date, scheduled_date, estimated_minutes,
+                priority, status, created_at, updated_at,
+                completed_at, deleted_at
+         FROM task
+         WHERE deleted_at IS NULL
+           AND (
+             (scheduled_date IS NOT NULL AND scheduled_date >= ?1 AND scheduled_date <= ?2)
+             OR (due_date IS NOT NULL AND due_date >= ?1 AND due_date <= ?2)
+           )
+         ORDER BY COALESCE(scheduled_date, due_date), created_at",
+    )?;
+    let rows = stmt.query_map(params![from, to], row_to_task)?;
+    Ok(rows.collect::<std::result::Result<Vec<_>, _>>()?)
 }

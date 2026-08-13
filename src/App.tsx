@@ -4,6 +4,14 @@ import type { Goal, Priority } from "./types";
 import "./styles.css";
 import GoalDetail from "./GoalDetail";
 import DailyLog from "./DailyLog";
+import Calendar from "./Calendar";
+
+const shellStyle = {
+  padding: 24,
+  fontFamily: "system-ui",
+  maxWidth: 1200,
+  margin: "0 auto",
+} as const;
 
 export default function App() {
   const [selected, setSelected] = useState<Goal | null>(null);
@@ -13,7 +21,7 @@ export default function App() {
   const [priority, setPriority] = useState<Priority>("MEDIUM");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"goals" | "log">("goals");
+  const [view, setView] = useState<"goals" | "log" | "calendar">("goals");
 
   async function refresh() {
     try {
@@ -60,14 +68,14 @@ export default function App() {
 
   if (selected) {
     return (
-      <main style={{ padding: 24, fontFamily: "system-ui", maxWidth: 720 }}>
+      <main style={shellStyle}>
         <GoalDetail goal={selected} onBack={() => setSelected(null)} />
       </main>
     );
   }
 
   return (
-    <main style={{ padding: 24, fontFamily: "system-ui", maxWidth: 720 }}>
+    <main style={shellStyle}>
       <h1>Stark</h1>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
@@ -83,11 +91,18 @@ export default function App() {
         >
           Daily Log
         </button>
+        <button
+          onClick={() => setView("calendar")}
+          style={{ fontWeight: view === "calendar" ? "bold" : "normal" }}
+        >
+          Calendar
+        </button>
       </div>
 
       {error && <p style={{ color: "#c00", marginBottom: 16 }}>{error}</p>}
 
       {view === "log" && <DailyLog goals={goals} />}
+      {view === "calendar" && <Calendar />}
 
       {view === "goals" && (
         <>

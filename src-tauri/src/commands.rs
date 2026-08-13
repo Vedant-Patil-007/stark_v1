@@ -138,3 +138,12 @@ pub fn delete_log_entry(state: State<'_, AppState>, id: String) -> CmdResult<()>
     let conn = state.db.lock().unwrap();
     log_cmd::delete_log_entry(&conn, &LogEntryId::from(id)).map_err(Into::into)
 }
+#[tauri::command]
+pub fn tasks_in_range(
+    state: State<'_, AppState>,
+    from: String,
+    to: String,
+) -> CmdResult<Vec<Task>> {
+    let conn = state.db.lock().unwrap();
+    task_cmd::tasks_in_range(&conn, &from, &to).map_err(Into::into)
+}

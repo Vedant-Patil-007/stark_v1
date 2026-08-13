@@ -4,6 +4,7 @@ use stark_storage::{goal_repo, milestone_repo, task_repo};
 use crate::error::{CommandError, Result};
 use crate::validate;
 
+
 pub fn create_task(conn: &Connection, mut input: NewTask) -> Result<Task> {
     input.title = validate::title(&input.title)?;
     input.description = validate::optional_description(input.description)?;
@@ -82,4 +83,15 @@ pub fn delete_task(conn: &Connection, id: &TaskId) -> Result<()> {
     } else {
         Err(CommandError::NotFound(format!("task {id}")))
     }
+}
+
+
+/// All non-deleted tasks with a scheduled or due date inside the range.
+pub fn tasks_in_range(conn: &Connection, from: &str, to: &str) -> Result<Vec<Task>> {
+    if from > to {
+        return Err(CommandError::Validation(
+            "range start cannot be after range end".into(),
+        ));
+    }
+    Ok(stark_storage::task_repo::list_in_range(conn, from, to)?)
 }

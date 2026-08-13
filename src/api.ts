@@ -32,4 +32,6 @@ export const api = {
   listLogForDate: (date: string) =>
     invoke<LogEntry[]>("list_log_for_date", { date }),
   deleteLogEntry: (id: string) => invoke<void>("delete_log_entry", { id }),
+  tasksInRange: (from: string, to: string) =>
+    invoke<Task[]>("tasks_in_range", { from, to }),
 };
