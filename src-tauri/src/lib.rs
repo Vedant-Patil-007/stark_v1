@@ -43,6 +43,9 @@ pub fn run() {
             commands::set_task_status,
             commands::reschedule_task,
             commands::delete_task,
+            commands::create_log_entry,
+            commands::list_log_for_date,
+            commands::delete_log_entry,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

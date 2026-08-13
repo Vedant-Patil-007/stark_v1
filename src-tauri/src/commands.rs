@@ -4,7 +4,10 @@ use tauri::State;
 use stark_commands::task as task_cmd;
 use stark_domain::{NewTask, Task, TaskFilter, TaskId};
 use crate::state::AppState;
-
+use stark_commands::daily_log as log_cmd;
+use stark_domain::{LogEntry, LogEntryId, NewLogEntry};
+use stark_commands::milestone as milestone_cmd;
+use stark_domain::{Milestone, MilestoneId, NewMilestone, Status};
 type CmdResult<T> = std::result::Result<T, ErrorPayload>;
 
 #[tauri::command]
@@ -37,8 +40,7 @@ pub fn delete_goal(state: State<'_, AppState>, id: String) -> CmdResult<()> {
     goal_cmd::delete_goal(&conn, &GoalId::from(id)).map_err(Into::into)
 }
 
-use stark_commands::milestone as milestone_cmd;
-use stark_domain::{Milestone, MilestoneId, NewMilestone, Status};
+
 
 #[tauri::command]
 pub fn create_milestone(
@@ -110,4 +112,29 @@ pub fn reschedule_task(
 pub fn delete_task(state: State<'_, AppState>, id: String) -> CmdResult<()> {
     let conn = state.db.lock().unwrap();
     task_cmd::delete_task(&conn, &TaskId::from(id)).map_err(Into::into)
+}
+
+
+#[tauri::command]
+pub fn create_log_entry(
+    state: State<'_, AppState>,
+    input: NewLogEntry,
+) -> CmdResult<LogEntry> {
+    let conn = state.db.lock().unwrap();
+    log_cmd::create_log_entry(&conn, input).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn list_log_for_date(
+    state: State<'_, AppState>,
+    date: String,
+) -> CmdResult<Vec<LogEntry>> {
+    let conn = state.db.lock().unwrap();
+    log_cmd::list_log_for_date(&conn, &date).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn delete_log_entry(state: State<'_, AppState>, id: String) -> CmdResult<()> {
+    let conn = state.db.lock().unwrap();
+    log_cmd::delete_log_entry(&conn, &LogEntryId::from(id)).map_err(Into::into)
 }

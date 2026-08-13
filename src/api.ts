@@ -1,5 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { Goal, NewGoal, Milestone, NewMilestone, Status } from "./types";
+import type {
+  Goal, NewGoal,
+  Milestone, NewMilestone,
+  Task, NewTask, TaskFilter,
+  LogEntry, NewLogEntry,
+  Status,
+} from "./types";
 
 export const api = {
   createGoal: (input: NewGoal) => invoke<Goal>("create_goal", { input }),
@@ -21,4 +27,9 @@ export const api = {
   rescheduleTask: (id: string, scheduledDate: string | null) =>
     invoke<void>("reschedule_task", { id, scheduledDate }),
   deleteTask: (id: string) => invoke<void>("delete_task", { id }),
+  createLogEntry: (input: NewLogEntry) =>
+    invoke<LogEntry>("create_log_entry", { input }),
+  listLogForDate: (date: string) =>
+    invoke<LogEntry[]>("list_log_for_date", { date }),
+  deleteLogEntry: (id: string) => invoke<void>("delete_log_entry", { id }),
 };

@@ -12,4 +12,10 @@ export const api = {
   setMilestoneStatus: (id: string, status: Status) =>
     invoke<void>("set_milestone_status", { id, status }),
   deleteMilestone: (id: string) => invoke<void>("delete_milestone", { id }),
+
+  createLogEntry: (input: NewLogEntry) =>
+    invoke<LogEntry>("create_log_entry", { input }),
+  listLogForDate: (date: string) =>
+    invoke<LogEntry[]>("list_log_for_date", { date }),
+  deleteLogEntry: (id: string) => invoke<void>("delete_log_entry", { id }),
 };
