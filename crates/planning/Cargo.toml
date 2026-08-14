@@ -1,12 +1,8 @@
 [package]
-name = "stark-commands"
+name = "stark-planning"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
 stark-domain = { path = "../domain" }
-stark-storage = { path = "../storage" }
-rusqlite = { version = "0.37" }
 serde = { version = "1", features = ["derive"] }
-thiserror = "2"
-stark-planning = { path = "../planning" }

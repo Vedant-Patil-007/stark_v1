@@ -50,4 +50,5 @@ export const api = {
     invoke<void>("delete_availability_exception", { id }),
   capacityForDate: (date: string, weekday: number) =>
     invoke<DayCapacity>("capacity_for_date", { date, weekday }),
+  analyzePlan: (today: string) => invoke<Analysis>("analyze_plan", { today }),
 };

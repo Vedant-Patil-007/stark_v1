@@ -6,6 +6,8 @@ import GoalDetail from "./GoalDetail";
 import DailyLog from "./DailyLog";
 import Calendar from "./Calendar";
 import Availability from "./Availability";
+import type { Analysis, GoalAnalysis } from "./types";
+import { healthColor, healthLabel, fmtMinutes, todayIso } from "./health";
 
 const shellStyle = {
   padding: 24,
@@ -23,10 +25,16 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"goals" | "log" | "calendar" | "availability">("goals");
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
 
-  async function refresh() {
+async function refresh() {
     try {
-      setGoals(await api.listGoals());
+      const [g, a] = await Promise.all([
+        api.listGoals(),
+        api.analyzePlan(todayIso()),
+      ]);
+      setGoals(g);
+      setAnalysis(a);
       setError(null);
     } catch (e: any) {
       setError(e?.message ?? String(e));
@@ -172,6 +180,42 @@ export default function App() {
                       {g.priority} · {g.status}
                       {g.target_date ? ` · due ${g.target_date}` : ""}
                     </div>
+                    {(() => {
+                      const a: GoalAnalysis | undefined = analysis?.goals.find(
+                        (x) => x.goal_id === g.id,
+                      );
+                      if (!a) return null;
+                      return (
+                        <div style={{ marginTop: 6 }}>
+                          <span
+                            style={{
+                              background: healthColor[a.health],
+                              borderRadius: 4,
+                              padding: "1px 8px",
+                              fontSize: 11,
+                              marginRight: 8,
+                            }}
+                          >
+                            {healthLabel[a.health]}
+                          </span>
+                          <span style={{ fontSize: 12, opacity: 0.8 }}>
+                            {Math.round(a.progress * 100)}% ·{" "}
+                            {a.tasks_completed}/{a.tasks_total} tasks
+                            {a.shortfall_minutes > 0
+                              ? ` · short ${fmtMinutes(a.shortfall_minutes)}`
+                              : ""}
+                          </span>
+                          {a.confidence === "LOW" && (
+                            <span
+                              style={{ fontSize: 11, opacity: 0.6, marginLeft: 8 }}
+                              title={`${a.unestimated_task_count} task(s) have no time estimate`}
+                            >
+                              ⚠ low confidence
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                   <button onClick={() => handleDelete(g.id)}>Delete</button>
                 </li>

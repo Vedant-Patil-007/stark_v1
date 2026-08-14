@@ -13,6 +13,8 @@ use stark_domain::{
     AvailabilityException, AvailabilityId, AvailabilityWindow, DayCapacity, ExceptionId,
     NewAvailabilityException, NewAvailabilityWindow,
 };
+use stark_commands::planning as planning_cmd;
+use stark_planning::Analysis;
 type CmdResult<T> = std::result::Result<T, ErrorPayload>;
 
 #[tauri::command]
@@ -219,4 +221,12 @@ pub fn capacity_for_date(
 ) -> CmdResult<DayCapacity> {
     let conn = state.db.lock().unwrap();
     avail_cmd::capacity_for_date(&conn, &date, weekday).map_err(Into::into)
+}
+
+
+
+#[tauri::command]
+pub fn analyze_plan(state: State<'_, AppState>, today: String) -> CmdResult<Analysis> {
+    let conn = state.db.lock().unwrap();
+    planning_cmd::analyze_plan(&conn, &today).map_err(Into::into)
 }

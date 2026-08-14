@@ -86,3 +86,4 @@ export interface DayCapacity {
   windows: Interval[];
   total_minutes: number;
 }
+

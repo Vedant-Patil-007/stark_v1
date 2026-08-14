@@ -154,3 +154,37 @@ export interface DayCapacity {
   windows: Interval[];
   total_minutes: number;
 }
+export type GoalHealth =
+  | "ON_TRACK"
+  | "AT_RISK"
+  | "BEHIND"
+  | "CRITICAL"
+  | "NOT_APPLICABLE";
+
+export type Confidence = "HIGH" | "MEDIUM" | "LOW";
+
+export interface GoalAnalysis {
+  goal_id: string;
+  title: string;
+  progress: number;
+  tasks_total: number;
+  tasks_completed: number;
+  workload_remaining_minutes: number;
+  capacity_available_minutes: number;
+  shortfall_minutes: number;
+  days_remaining: number | null;
+  health: GoalHealth;
+  estimate_coverage: number;
+  unestimated_task_count: number;
+  confidence: Confidence;
+  reason: string;
+}
+
+export interface Analysis {
+  generated_for: string;
+  goals: GoalAnalysis[];
+  today_task_count: number;
+  today_planned_minutes: number;
+  today_capacity_minutes: number;
+  overdue_task_count: number;
+}

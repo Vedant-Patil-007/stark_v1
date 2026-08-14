@@ -54,6 +54,7 @@ pub fn run() {
             commands::list_availability_exceptions,
             commands::delete_availability_exception,
             commands::capacity_for_date,
+            commands::analyze_plan,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
