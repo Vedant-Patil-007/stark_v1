@@ -15,6 +15,7 @@ pub struct PlanningSnapshot {
     pub capacity_by_date: Vec<DateCapacity>,
     /// Minutes already logged per goal, all time.
     pub logged_minutes_by_goal: Vec<GoalMinutes>,
+   
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

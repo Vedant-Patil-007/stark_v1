@@ -58,3 +58,18 @@ pub struct Analysis {
     pub today_capacity_minutes: i64,
     pub overdue_task_count: usize,
 }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpcomingItem {
+    pub date: String,
+    pub label: String,
+    pub kind: UpcomingKind,
+    pub days_away: i64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum UpcomingKind {
+    TaskDue,
+    MilestoneTarget,
+    GoalTarget,
+}
