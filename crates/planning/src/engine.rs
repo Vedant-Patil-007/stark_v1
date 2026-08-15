@@ -1,5 +1,5 @@
 use stark_domain::{Goal, Status, Task};
-use crate::analysis::{Analysis, Confidence, GoalAnalysis, GoalHealth};
+use crate::analysis::{Analysis, Confidence, GoalAnalysis, GoalHealth, UpcomingItem, UpcomingKind};
 use crate::snapshot::PlanningSnapshot;
 
 /// Risk thresholds, expressed as shortfall relative to remaining workload.
@@ -11,6 +11,8 @@ pub const CRITICAL_THRESHOLD: f64 = 0.50; // short by more than 50%
 /// Below this share of estimated tasks, the analysis is low confidence.
 pub const LOW_COVERAGE: f64 = 0.60;
 pub const HIGH_COVERAGE: f64 = 0.90;
+
+
 
 pub fn analyze(snapshot: &PlanningSnapshot) -> Analysis {
     let goals: Vec<GoalAnalysis> = snapshot
@@ -51,14 +53,79 @@ pub fn analyze(snapshot: &PlanningSnapshot) -> Analysis {
             None => false,
         })
         .count();
+// --- Upcoming: deadlines within the next 30 days ---
+    let mut upcoming: Vec<UpcomingItem> = Vec::new();
 
-    Analysis {
+    for t in snapshot.tasks.iter() {
+        if t.deleted_at.is_some() || is_finished(t) {
+            continue;
+        }
+        if let Some(due) = &t.due_date {
+            let days = days_between(&snapshot.today, due);
+            if (0..=30).contains(&days) {
+                upcoming.push(UpcomingItem {
+                    date: due.clone(),
+                    label: t.title.clone(),
+                    kind: UpcomingKind::TaskDue,
+                    days_away: days,
+                });
+            }
+        }
+    }
+
+    for m in snapshot.milestones.iter() {
+        if m.deleted_at.is_some() || m.status == Status::Completed {
+            continue;
+        }
+        if let Some(target) = &m.target_date {
+            let days = days_between(&snapshot.today, target);
+            if (0..=30).contains(&days) {
+                upcoming.push(UpcomingItem {
+                    date: target.clone(),
+                    label: m.title.clone(),
+                    kind: UpcomingKind::MilestoneTarget,
+                    days_away: days,
+                });
+            }
+        }
+    }
+
+    for g in snapshot.goals.iter() {
+        if g.deleted_at.is_some() || g.status == Status::Completed {
+            continue;
+        }
+        if let Some(target) = &g.target_date {
+            let days = days_between(&snapshot.today, target);
+            if (0..=30).contains(&days) {
+                upcoming.push(UpcomingItem {
+                    date: target.clone(),
+                    label: g.title.clone(),
+                    kind: UpcomingKind::GoalTarget,
+                    days_away: days,
+                });
+            }
+        }
+    }
+
+    upcoming.sort_by(|a, b| a.date.cmp(&b.date));
+    upcoming.truncate(8);
+
+    let capacity_next_7_days_minutes: i64 = snapshot
+        .capacity_by_date
+        .iter()
+        .filter(|c| c.date.as_str() >= snapshot.today.as_str())
+        .take(7)
+        .map(|c| c.minutes)
+        .sum();
+   Analysis {
         generated_for: snapshot.today.clone(),
         goals,
         today_task_count: today_tasks.len(),
         today_planned_minutes,
         today_capacity_minutes,
         overdue_task_count,
+        upcoming,
+        capacity_next_7_days_minutes,
     }
 }
 

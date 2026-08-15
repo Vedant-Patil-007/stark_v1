@@ -57,6 +57,8 @@ pub struct Analysis {
     pub today_planned_minutes: i64,
     pub today_capacity_minutes: i64,
     pub overdue_task_count: usize,
+    pub upcoming: Vec<UpcomingItem>,
+    pub capacity_next_7_days_minutes: i64,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpcomingItem {
