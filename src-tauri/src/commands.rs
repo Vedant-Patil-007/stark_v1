@@ -230,3 +230,14 @@ pub fn analyze_plan(state: State<'_, AppState>, today: String) -> CmdResult<Anal
     let conn = state.db.lock().unwrap();
     planning_cmd::analyze_plan(&conn, &today).map_err(Into::into)
 }
+#[tauri::command]
+pub fn today_tasks(state: State<'_, AppState>, today: String) -> CmdResult<Vec<Task>> {
+    let conn = state.db.lock().unwrap();
+    planning_cmd::today_tasks(&conn, &today).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn overdue_tasks(state: State<'_, AppState>, today: String) -> CmdResult<Vec<Task>> {
+    let conn = state.db.lock().unwrap();
+    planning_cmd::overdue_tasks(&conn, &today).map_err(Into::into)
+}

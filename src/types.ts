@@ -187,4 +187,14 @@ export interface Analysis {
   today_planned_minutes: number;
   today_capacity_minutes: number;
   overdue_task_count: number;
+  upcoming: UpcomingItem[];
+  capacity_next_7_days_minutes: number;
+}
+export type UpcomingKind = "TASK_DUE" | "MILESTONE_TARGET" | "GOAL_TARGET";
+
+export interface UpcomingItem {
+  date: string;
+  label: string;
+  kind: UpcomingKind;
+  days_away: number;
 }

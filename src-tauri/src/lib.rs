@@ -55,6 +55,8 @@ pub fn run() {
             commands::delete_availability_exception,
             commands::capacity_for_date,
             commands::analyze_plan,
+            commands::today_tasks,
+            commands::overdue_tasks,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

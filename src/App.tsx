@@ -8,7 +8,7 @@ import Calendar from "./Calendar";
 import Availability from "./Availability";
 import type { Analysis, GoalAnalysis } from "./types";
 import { healthColor, healthLabel, fmtMinutes, todayIso } from "./health";
-
+import Dashboard from "./Dashboard";
 const shellStyle = {
   padding: 24,
   fontFamily: "system-ui",
@@ -24,7 +24,7 @@ export default function App() {
   const [priority, setPriority] = useState<Priority>("MEDIUM");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"goals" | "log" | "calendar" | "availability">("goals");
+  const [view, setView] = useState <"dashboard" | "goals" | "log" | "calendar" | "availability"  >("dashboard");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
 
 async function refresh() {
@@ -89,6 +89,12 @@ async function refresh() {
 
       <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         <button
+          onClick={() => setView("dashboard")}
+          style={{ fontWeight: view === "dashboard" ? "bold" : "normal" }}
+        >
+          Dashboard
+        </button>
+        <button
           onClick={() => setView("goals")}
           style={{ fontWeight: view === "goals" ? "bold" : "normal" }}
         >
@@ -119,6 +125,7 @@ async function refresh() {
       {view === "log" && <DailyLog goals={goals} />}
       {view === "calendar" && <Calendar />}
       {view === "availability" && <Availability />}
+      {view === "dashboard" && <Dashboard />}
 
       {view === "goals" && (
         <>

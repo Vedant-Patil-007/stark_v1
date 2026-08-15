@@ -51,4 +51,6 @@ export const api = {
   capacityForDate: (date: string, weekday: number) =>
     invoke<DayCapacity>("capacity_for_date", { date, weekday }),
   analyzePlan: (today: string) => invoke<Analysis>("analyze_plan", { today }),
+  todayTasks: (today: string) => invoke<Task[]>("today_tasks", { today }),
+  overdueTasks: (today: string) => invoke<Task[]>("overdue_tasks", { today }),
 };
