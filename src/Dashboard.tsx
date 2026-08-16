@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
-import type { Analysis, Task, UpcomingKind } from "./types";
 import { healthColor, healthLabel, fmtMinutes, todayIso } from "./health";
 import type { CSSProperties } from "react";
-const kindLabel: Record<UpcomingKind, string> = {
+import type { Analysis, Reminder, Task, UpcomingKind } from "./types";const kindLabel: Record<UpcomingKind, string> = {
   TASK_DUE: "task",
   MILESTONE_TARGET: "milestone",
   GOAL_TARGET: "goal",
@@ -22,18 +21,25 @@ export default function Dashboard() {
   const [overdue, setOverdue] = useState<Task[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [missed, setMissed] = useState<Reminder[]>([]);
+ 
 
   async function refresh() {
     const date = todayIso();
+    // Minutes to add to local time to get UTC. JS returns the inverse sign.
+    const offset = new Date().getTimezoneOffset() * -1;
     try {
-      const [a, t, o] = await Promise.all([
+      await api.syncReminders(date, offset);
+      const [a, t, o, m] = await Promise.all([
         api.analyzePlan(date),
         api.todayTasks(date),
         api.overdueTasks(date),
+        api.listMissedReminders(),
       ]);
       setAnalysis(a);
       setToday(t);
       setOverdue(o);
+      setMissed(m);
       setError(null);
     } catch (e: any) {
       setError(e?.message ?? String(e));
@@ -68,6 +74,35 @@ export default function Dashboard() {
 
   return (
     <div>
+    {missed.length > 0 && (
+        <div style={{ ...card, borderColor: "#8a6d1f" }}>
+          <h3 style={{ margin: "0 0 12px" }}>
+            Missed while Stark was closed ({missed.length})
+          </h3>
+          {missed.map((m) => (
+            <div
+              key={m.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "4px 0",
+                fontSize: 13,
+              }}
+            >
+              <span style={{ flex: 1 }}>{m.title}</span>
+              <button
+                onClick={async () => {
+                  await api.dismissReminder(m.id);
+                  await refresh();
+                }}
+              >
+                Dismiss
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       {/* ---------- Today ---------- */}
       <div style={card}>
         <div

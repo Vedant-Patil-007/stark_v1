@@ -198,3 +198,17 @@ export interface UpcomingItem {
   kind: UpcomingKind;
   days_away: number;
 }
+
+export type ReminderStatus = "PENDING" | "FIRED" | "MISSED" | "DISMISSED";
+
+export interface Reminder {
+  id: string;
+  task_id: string | null;
+  goal_id: string | null;
+  fire_at_utc: string;
+  title: string;
+  body: string | null;
+  status: ReminderStatus;
+  fired_at: string | null;
+  created_at: string;
+}

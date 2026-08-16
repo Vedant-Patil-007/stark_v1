@@ -53,4 +53,8 @@ export const api = {
   analyzePlan: (today: string) => invoke<Analysis>("analyze_plan", { today }),
   todayTasks: (today: string) => invoke<Task[]>("today_tasks", { today }),
   overdueTasks: (today: string) => invoke<Task[]>("overdue_tasks", { today }),
+  syncReminders: (date: string, offsetMinutes: number) =>
+    invoke<number>("sync_reminders", { date, offsetMinutes }),
+  listMissedReminders: () => invoke<Reminder[]>("list_missed_reminders"),
+  dismissReminder: (id: string) => invoke<void>("dismiss_reminder", { id }),
 };
