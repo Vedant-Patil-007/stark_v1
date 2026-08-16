@@ -1,11 +1,13 @@
 mod commands;
-mod state;
 mod scheduler;
+mod state;
+
 use state::AppState;
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::Manager;
 use tauri_plugin_autostart::MacosLauncher;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut conn = stark_storage::db::open().expect("failed to open database");
@@ -24,12 +26,11 @@ pub fn run() {
             println!("pre-migration backup: {path}");
         }
     }
-    
 
     let _ = stark_storage::backup::create_daily_if_needed(&conn);
     let _ = stark_storage::backup::prune_daily(14);
 
- tauri::Builder::default()
+    tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             // Someone launched a second copy: focus the existing window instead.
             if let Some(w) = app.get_webview_window("main") {
@@ -46,6 +47,44 @@ pub fn run() {
         .manage(AppState::new(conn))
         .setup(|app| {
             let handle = app.handle().clone();
+
+// ---- TEMPORARY TEST: delete once the toast has been seen ----
+            {
+                let state = handle.state::<AppState>();
+                let conn = state.db.lock().unwrap();
+
+                // Start from a clean slate so old reminders don't confuse the test.
+                let _ = conn.execute("DELETE FROM reminder", []);
+
+                let now = stark_storage::time_util::now_utc();
+
+                // Push the fire time 30 seconds into the future.
+                let fire_at = {
+                    let mut s = now.clone();
+                    let secs: i64 = s[17..19].parse().unwrap_or(0);
+                    let mins: i64 = s[14..16].parse().unwrap_or(0);
+                    let total = secs + 30;
+                    let new_secs = total % 60;
+                    let new_mins = (mins + total / 60) % 60;
+                    s.replace_range(17..19, &format!("{:02}", new_secs));
+                    s.replace_range(14..16, &format!("{:02}", new_mins));
+                    s
+                };
+
+                println!("test reminder scheduled for {fire_at} (now is {now})");
+
+                let _ = stark_storage::reminder_repo::create(
+                    &conn,
+                    stark_domain::NewReminder {
+                        task_id: None,
+                        goal_id: None,
+                        fire_at_utc: fire_at,
+                        title: "Stark test reminder".into(),
+                        body: Some("If you see this, the scheduler works.".into()),
+                    },
+                );
+            }
+            // ---- END TEMPORARY TEST ----
 
             // ---- system tray ----
             let show = MenuItem::with_id(app, "show", "Open Stark", true, None::<&str>)?;
@@ -115,7 +154,6 @@ pub fn run() {
             commands::list_missed_reminders,
             commands::dismiss_reminder,
         ])
-      .run(tauri::generate_context!())
+        .run(tauri::generate_context!())
         .expect("error while running tauri application");
-    
 }
