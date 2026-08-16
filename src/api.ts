@@ -4,9 +4,12 @@ import type {
   Milestone, NewMilestone,
   Task, NewTask, TaskFilter,
   LogEntry, NewLogEntry,
-  Status,AvailabilityWindow, NewAvailabilityWindow,
+  AvailabilityWindow, NewAvailabilityWindow,
   AvailabilityException, NewAvailabilityException,
   DayCapacity,
+  Analysis,
+  Reminder,
+  Status,
 } from "./types";
 
 export const api = {
