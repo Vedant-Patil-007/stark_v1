@@ -45,3 +45,4 @@ define_id!(LogEntryId);
 
 define_id!(AvailabilityId);
 define_id!(ExceptionId);
+define_id!(ReminderId);

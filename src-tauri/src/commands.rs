@@ -241,3 +241,27 @@ pub fn overdue_tasks(state: State<'_, AppState>, today: String) -> CmdResult<Vec
     let conn = state.db.lock().unwrap();
     planning_cmd::overdue_tasks(&conn, &today).map_err(Into::into)
 }
+
+use stark_domain::{Reminder, ReminderId};
+
+#[tauri::command]
+pub fn sync_reminders(
+    state: State<'_, AppState>,
+    date: String,
+    offset_minutes: i64,
+) -> CmdResult<usize> {
+    let conn = state.db.lock().unwrap();
+    planning_cmd::sync_reminders_for_date(&conn, &date, offset_minutes).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn list_missed_reminders(state: State<'_, AppState>) -> CmdResult<Vec<Reminder>> {
+    let conn = state.db.lock().unwrap();
+    planning_cmd::list_missed_reminders(&conn).map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn dismiss_reminder(state: State<'_, AppState>, id: String) -> CmdResult<()> {
+    let conn = state.db.lock().unwrap();
+    planning_cmd::dismiss_reminder(&conn, &ReminderId::from(id)).map_err(Into::into)
+}

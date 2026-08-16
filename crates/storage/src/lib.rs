@@ -11,3 +11,4 @@ pub use error::{Result, StorageError};
 pub mod log_repo;
 pub mod availability_repo;
 pub mod snapshot_builder;
+pub mod reminder_repo;

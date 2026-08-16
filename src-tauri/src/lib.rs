@@ -1,8 +1,11 @@
 mod commands;
 mod state;
-
+mod scheduler;
 use state::AppState;
-
+use tauri::menu::{Menu, MenuItem};
+use tauri::tray::TrayIconBuilder;
+use tauri::Manager;
+use tauri_plugin_autostart::MacosLauncher;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut conn = stark_storage::db::open().expect("failed to open database");
@@ -21,13 +24,64 @@ pub fn run() {
             println!("pre-migration backup: {path}");
         }
     }
+    
 
     let _ = stark_storage::backup::create_daily_if_needed(&conn);
     let _ = stark_storage::backup::prune_daily(14);
 
-    tauri::Builder::default()
+ tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            // Someone launched a second copy: focus the existing window instead.
+            if let Some(w) = app.get_webview_window("main") {
+                let _ = w.show();
+                let _ = w.set_focus();
+            }
+        }))
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,
+            None,
+        ))
         .manage(AppState::new(conn))
+        .setup(|app| {
+            let handle = app.handle().clone();
+
+            // ---- system tray ----
+            let show = MenuItem::with_id(app, "show", "Open Stark", true, None::<&str>)?;
+            let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+            let menu = Menu::with_items(app, &[&show, &quit])?;
+
+            TrayIconBuilder::new()
+                .icon(app.default_window_icon().unwrap().clone())
+                .menu(&menu)
+                .tooltip("Stark")
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "show" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.show();
+                            let _ = w.set_focus();
+                        }
+                    }
+                    "quit" => app.exit(0),
+                    _ => {}
+                })
+                .build(app)?;
+
+            // ---- reminders ----
+            scheduler::catch_up(&handle);
+            scheduler::spawn(handle);
+
+            Ok(())
+        })
+        .on_window_event(|window, event| {
+            // Closing the window hides it; the app keeps running in the tray
+            // so reminders continue to fire. Quit from the tray menu.
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let _ = window.hide();
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             commands::create_goal,
             commands::list_goals,
@@ -57,7 +111,11 @@ pub fn run() {
             commands::analyze_plan,
             commands::today_tasks,
             commands::overdue_tasks,
+            commands::sync_reminders,
+            commands::list_missed_reminders,
+            commands::dismiss_reminder,
         ])
-        .run(tauri::generate_context!())
+      .run(tauri::generate_context!())
         .expect("error while running tauri application");
+    
 }
