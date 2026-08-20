@@ -3303,6 +3303,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "stark-ai"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "serde",
+ "serde_json",
+ "stark-domain",
+ "thiserror 2.0.19",
+]
+
+[[package]]
 name = "stark-commands"
 version = "0.1.0"
 dependencies = [
