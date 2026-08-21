@@ -37,6 +37,11 @@ const MIGRATIONS: &[Migration] = &[
         name: "reminders",
         sql: include_str!("../migrations/005_reminders.sql"),
     },
+        Migration {
+        version: 6,
+        name: "ai_audit",
+        sql: include_str!("../migrations/006_ai_audit.sql"),
+    },
 ];
 
 /// Highest schema version this build understands.
