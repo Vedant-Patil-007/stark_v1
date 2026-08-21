@@ -265,3 +265,114 @@ pub fn dismiss_reminder(state: State<'_, AppState>, id: String) -> CmdResult<()>
     let conn = state.db.lock().unwrap();
     planning_cmd::dismiss_reminder(&conn, &ReminderId::from(id)).map_err(Into::into)
 }
+
+
+use stark_ai::keys;
+use stark_ai::nvidia::NvidiaProvider;
+use stark_ai::provider::CommandContext;
+use stark_ai::router::{route, Tier};
+use stark_commands::ai_bridge::{self, ApplyOutcome};
+
+const DEFAULT_MODEL: &str = "nvidia/nemotron-3-nano-30b-a3b";
+
+#[derive(serde::Serialize)]
+pub struct AiResult {
+    pub outcome: ApplyOutcome,
+    pub tier: String,
+    pub latency_ms: u64,
+    pub action_name: String,
+}
+
+#[tauri::command]
+pub async fn run_ai_command(
+    state: State<'_, AppState>,
+    instruction: String,
+    today: String,
+) -> CmdResult<AiResult> {
+    // Build context from the current database, then release the lock
+    // before any network call.
+    let ctx = {
+        let conn = state.db.lock().unwrap();
+        let goals = stark_storage::goal_repo::list(&conn)
+            .map_err(|e| ErrorPayload { kind: "STORAGE".into(), message: e.to_string() })?;
+        let tasks = stark_storage::task_repo::list(
+            &conn,
+            &stark_domain::TaskFilter {
+                goal_id: None,
+                milestone_id: None,
+                scheduled_date: None,
+                include_completed: false,
+            },
+        )
+        .map_err(|e| ErrorPayload { kind: "STORAGE".into(), message: e.to_string() })?;
+
+        CommandContext {
+            instruction: instruction.clone(),
+            today: today.clone(),
+            goal_names: goals.into_iter().map(|g| g.title).collect(),
+            task_names: tasks.into_iter().map(|t| t.title).collect(),
+        }
+    };
+
+       let provider = {
+        let conn = state.db.lock().unwrap();
+        keys::load_key(&conn, "nvidia")
+            .ok()
+            .flatten()
+            .map(|k| NvidiaProvider::new(k, DEFAULT_MODEL.to_string()))
+    };
+
+    let routed = route(&ctx, provider.as_ref().map(|p| p as &dyn stark_ai::provider::AiProvider))
+        .await
+        .map_err(|e| ErrorPayload {
+            kind: "AI".into(),
+            message: e.to_string(),
+        })?;
+
+    let action_name = routed.action.name().to_string();
+    let tier = match routed.tier {
+        Tier::Deterministic => "local",
+        Tier::Remote => "cloud",
+    };
+
+    let outcome = {
+        let mut conn = state.db.lock().unwrap();
+               ai_bridge::apply(&mut conn, routed.action, &today)
+            .map_err(ErrorPayload::from)?
+    };
+
+    Ok(AiResult {
+        outcome,
+        tier: tier.to_string(),
+        latency_ms: routed.latency_ms,
+        action_name,
+    })
+}
+
+#[tauri::command]
+pub fn set_ai_key(state: State<'_, AppState>, key: String) -> CmdResult<()> {
+    let conn = state.db.lock().unwrap();
+    keys::store_key(&conn, "nvidia", &key).map_err(|e| ErrorPayload {
+        kind: "AI".into(),
+        message: e.to_string(),
+    })
+}
+
+#[tauri::command]
+pub fn has_ai_key(state: State<'_, AppState>) -> String {
+    let conn = state.db.lock().unwrap();
+    match keys::load_key(&conn, "nvidia") {
+        Ok(Some(k)) => format!("found, {} chars", k.len()),
+        Ok(None) => "no entry".into(),
+        Err(e) => format!("error: {e}"),
+    }
+}
+
+#[tauri::command]
+pub fn clear_ai_key(state: State<'_, AppState>) -> CmdResult<()> {
+    let conn = state.db.lock().unwrap();
+    keys::delete_key(&conn, "nvidia").map_err(|e| ErrorPayload {
+        kind: "AI".into(),
+        message: e.to_string(),
+    })
+}

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+
 use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_notification::NotificationExt;

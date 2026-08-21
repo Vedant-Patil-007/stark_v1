@@ -153,6 +153,10 @@ pub fn run() {
             commands::sync_reminders,
             commands::list_missed_reminders,
             commands::dismiss_reminder,
+            commands::run_ai_command,
+            commands::set_ai_key,
+            commands::has_ai_key,
+            commands::clear_ai_key,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

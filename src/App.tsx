@@ -9,6 +9,7 @@ import Availability from "./Availability";
 import type { Analysis, GoalAnalysis } from "./types";
 import { healthColor, healthLabel, fmtMinutes, todayIso } from "./health";
 import Dashboard from "./Dashboard";
+import CommandBar from "./CommandBar";
 const shellStyle = {
   padding: 24,
   fontFamily: "system-ui",
@@ -119,7 +120,7 @@ async function refresh() {
           Availability
         </button>
       </div>
-
+      <CommandBar onChanged={refresh} />
       {error && <p style={{ color: "#c00", marginBottom: 16 }}>{error}</p>}
 
       {view === "log" && <DailyLog goals={goals} />}

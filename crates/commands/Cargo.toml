@@ -10,3 +10,5 @@ rusqlite = { version = "0.37" }
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
 stark-planning = { path = "../planning" }
+
+stark-ai = { path = "../ai" }

@@ -9,6 +9,7 @@ import type {
   DayCapacity,
   Analysis,
   Reminder,
+  AiResult,
   Status,
 } from "./types";
 
@@ -60,4 +61,9 @@ export const api = {
     invoke<number>("sync_reminders", { date, offsetMinutes }),
   listMissedReminders: () => invoke<Reminder[]>("list_missed_reminders"),
   dismissReminder: (id: string) => invoke<void>("dismiss_reminder", { id }),
+    runAiCommand: (instruction: string, today: string) =>
+    invoke<AiResult>("run_ai_command", { instruction, today }),
+  setAiKey: (key: string) => invoke<void>("set_ai_key", { key }),
+  hasAiKey: () => invoke<boolean>("has_ai_key"),
+  clearAiKey: () => invoke<void>("clear_ai_key"),
 };

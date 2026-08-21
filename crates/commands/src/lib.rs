@@ -7,3 +7,4 @@ pub use error::{CommandError, ErrorPayload, Result};
 pub mod daily_log;
 pub mod availability;
 pub mod planning;
+pub mod ai_bridge;

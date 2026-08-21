@@ -10,3 +10,4 @@ thiserror = "2"
 time = { version = "0.3", features = ["formatting", "macros", "local-offset"] }
 serde = { version = "1", features = ["derive"] }
 stark-planning = { path = "../planning" }
+stark-ai = { path = "../ai" }

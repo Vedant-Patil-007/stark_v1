@@ -212,3 +212,16 @@ export interface Reminder {
   fired_at: string | null;
   created_at: string;
 }
+
+export type ApplyOutcome =
+  | { kind: "EXECUTED"; summary: string }
+  | { kind: "NEEDS_CLARIFICATION"; question: string; candidates: string[] }
+  | { kind: "CAPTURED"; summary: string }
+  | { kind: "ANSWERED"; summary: string };
+
+export interface AiResult {
+  outcome: ApplyOutcome;
+  tier: "local" | "cloud";
+  latency_ms: number;
+  action_name: string;
+}
